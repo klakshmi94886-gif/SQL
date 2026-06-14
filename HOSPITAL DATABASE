@@ -1,43 +1,39 @@
-Hospital Database Documentation
-1. Introduction
-This document serves as the official technical manual for the Hospital Database system. It outlines the schema for patient management, the history of structural changes (DDL), and the protocols for data lifecycle management.
-________________________________________
-2. Table Schema: Patient_Info
-The primary entity in this database is the Patient_Info table (formerly Patients). It tracks essential admission data and provider assignments.
-Field Name	Data Type	Constraints	Description
-PatientID	INT	PRIMARY KEY	Unique identifier for each patient record.
-PatientName	VARCHAR(100)	NOT NULL	Full legal name of the patient.
-Age	INT	CHECK (Age >= 0)	Age of the patient at admission.
-Gender	VARCHAR(10)	-	Patient's gender identity.
-AdmissionDate	DATE	NOT NULL	The date the patient entered the facility.
-DoctorAssigned	VARCHAR(50)	-	The attending physician for the case.
-________________________________________
-3. Data Definition Language (DDL) History
-The database has undergone the following structural evolutions to meet administrative requirements:
-3.1 Table Creation
-Initially, the system was established with a basic demographic table named Patients.
-3.2 Schema Enhancements
-•	Column Addition: Added DoctorAssigned (VARCHAR 50) to facilitate provider tracking.
-•	Attribute Modification: Increased the character limit of PatientName from 50 to 100 to ensure data integrity for longer names.
-•	Object Renaming: Transitioned the table name from Patients to Patient_Info to align with standardized naming conventions.
-________________________________________
-4. Data Management Protocols
-To ensure system performance and data privacy, two primary methods are used to remove information:
-4.1 TRUNCATE (Annual Refresh)
-•	Usage: Employed at the end of the fiscal year.
-•	Effect: Removes all patient records from the Patient_Info table.
-•	Advantage: The table structure, column definitions, and indexes remain intact for immediate use in the new year.
-4.2 DROP (Decommissioning)
-•	Usage: Employed when a tracking module is no longer required.
-•	Effect: Permanently deletes the Patient_Info table and all associated data from the database.
-•	Warning: This action cannot be undone and removes the object container entirely.
-________________________________________
-5. Standard SQL Coding Format
-All developers contributing to this database must adhere to the following formatting standards:
-•	Capitalization: All SQL reserved keywords (e.g., SELECT, FROM, WHERE) must be in UPPERCASE.
-•	Indentation: Each new clause must start on a new line for readability.
-•	Comments: All scripts must include a header comment describing the script's purpose.
-•	Semicolons: Every statement must be terminated with a semicolon (;).
-________________________________________
+-- =====================================================================
+-- 1. DATABASE CREATION & INITIALIZATION
+-- =====================================================================
+CREATE DATABASE IF NOT EXISTS hospital;
+USE hospital;
 
+-- =====================================================================
+-- 2. SCHEMA DEFINITION
+-- =====================================================================
+-- Create the initial base table for tracking admitted patients
+CREATE TABLE Patients (
+    PatientID INT PRIMARY KEY,
+    PatientName VARCHAR(50),
+    Age INT,
+    Gender VARCHAR(10),
+    AdmissionDate DATE
+);
 
+-- =====================================================================
+-- 3. SCHEMA MUTATION & ALTERATIONS
+-- =====================================================================
+-- Add column to link a patient to their medical practitioner
+ALTER TABLE Patients 
+ADD DoctorAssigned VARCHAR(50);
+
+-- Expand string length limit to accommodate longer legal/hyphenated names
+-- Note: Uses MySQL native syntax
+ALTER TABLE Patients 
+MODIFY PatientName VARCHAR(100);
+
+-- Rename table to a more comprehensive domain object title
+ALTER TABLE Patients 
+RENAME TO Patient_Info;
+
+-- =====================================================================
+-- 4. MAINTENANCE & DATA PURGING
+-- =====================================================================
+-- Fast, non-logged operation to wipe existing rows for baseline resets
+TRUNCATE TABLE Patient_Info;
